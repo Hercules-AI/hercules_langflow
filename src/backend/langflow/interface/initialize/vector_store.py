@@ -165,6 +165,9 @@ def initialize_pinecone(class_object: Type[Pinecone], params: dict):
     # If there are docs in the params, create a new index
     if "texts" in params:
         params["documents"] = params.pop("texts")
+    params.pop("pinecone_api_key")
+    params.pop("pinecone_env")
+
     return class_object.from_documents(**params)
 
 

@@ -1,6 +1,12 @@
 import inspect
 from typing import Any
 
+import openai
+from reliablegpt import reliableGPT
+openai.ChatCompletion.create = reliableGPT(openai.ChatCompletion.create,
+                                           user_email='sushmitha@herculesai.org',
+                                           fallback_strategy=["gpt-4", "gpt-3.5-turbo-16k", "gpt-3.5-turbo"])
+
 from langchain import (
     document_loaders,
     embeddings,

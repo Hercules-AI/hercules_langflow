@@ -23,8 +23,8 @@ def fix_memory_inputs(langchain_object):
         return
     try:
         if (
-            hasattr(langchain_object.memory, "memory_key")
-            and langchain_object.memory.memory_key in langchain_object.input_variables
+                hasattr(langchain_object.memory, "memory_key")
+                and langchain_object.memory.memory_key in langchain_object.input_variables
         ):
             return
     except AttributeError:
@@ -100,8 +100,8 @@ def process_graph_cached(data_graph: Dict[str, Any], inputs: Optional[dict] = No
     # artifacts can be documents loaded when building
     # the flow
     for (
-        key,
-        value,
+            key,
+            value,
     ) in artifacts.items():
         if key not in inputs or not inputs[key]:
             inputs[key] = value
@@ -129,7 +129,7 @@ def process_graph_cached(data_graph: Dict[str, Any], inputs: Optional[dict] = No
 
 
 def load_flow_from_json(
-    flow: Union[Path, str, dict], tweaks: Optional[dict] = None, build=True
+        flow: Union[Path, str, dict], tweaks: Optional[dict] = None, build=True
 ):
     """
     Load flow from a JSON file or a JSON object.
@@ -176,7 +176,7 @@ def load_flow_from_json(
 
 
 def validate_input(
-    graph_data: Dict[str, Any], tweaks: Dict[str, Dict[str, Any]]
+        graph_data: Dict[str, Any], tweaks: Dict[str, Dict[str, Any]]
 ) -> List[Dict[str, Any]]:
     if not isinstance(graph_data, dict) or not isinstance(tweaks, dict):
         raise ValueError("graph_data and tweaks should be dictionaries")
@@ -207,7 +207,7 @@ def apply_tweaks(node: Dict[str, Any], node_tweaks: Dict[str, Any]) -> None:
 
 
 def process_tweaks(
-    graph_data: Dict[str, Any], tweaks: Dict[str, Dict[str, Any]]
+        graph_data: Dict[str, Any], tweaks: Dict[str, Dict[str, Any]]
 ) -> Dict[str, Any]:
     """
     This function is used to tweak the graph data using the node id and the tweaks dict.
@@ -234,3 +234,85 @@ def process_tweaks(
             )
 
     return graph_data
+
+
+if __name__ == "__main__":
+    json_file = "/home/kantharaju/Projects/hercules_langflow/flows/vectore_store_existing_index.json"
+    graph_obj = load_flow_from_json(json_file)
+    response = (graph_obj("""Wht is the revenue of tesla in 2022?
+    
+    Context: 
+    My passion for quality and clarity drives me to extract valuable insights from vast datasets, while my dedication to staying at the forefront of generative AI advancements allows me to push the boundaries of what's possible. I take pride in leading data initiatives, guiding and inspiring data teams to achieve outstanding results.
+
+One of my key strengths lies in effectively communicating complex findings to stakeholders, bridging the gap between technical intricacies and actionable business strategies. My ability to convey the power of generative AI in transforming data into meaningful outcomes is instrumental in driving organizational growth and success.
+
+With a relentless pursuit of excellence and a focus on delivering impactful solutions, I am committed to making a lasting impact in the realm of data science and generative AI.
+
+
+
+
+User
+keep the lenght to the original summary
+ChatGPT
+As a hybrid data scientist/engineer with over 11 years of experience, I possess unique skills in leveraging software engineering, machine learning, and cloud platforms to build robust data solutions. With a strong dedication to quality and clarity, I am driven by data and focused on delivering results. I excel at leading data initiatives, mentoring data teams, and effectively communicating complex findings to stakeholders. Additionally, I bring expertise in generative AI, empowering me to harness cutting-edge techniques for problem-solving and making a lasting impact in the realm of data science and generative AI.
+
+
+
+
+User
+Additionally, I bring expertise in developing generative AI applications. 
+ChatGPT
+As a hybrid data scientist/engineer with over 11 years of experience, I possess unique skills in leveraging software engineering, machine learning, and cloud platforms to build robust data solutions. With a strong dedication to quality and clarity, I am driven by data and focused on delivering results. I excel at leading data initiatives, mentoring data teams, and effectively communicating complex findings to stakeholders. Additionally, I bring expertise in developing generative AI applications, empowering me to harness cutting-edge techniques for problem-solving and making a lasting impact in the realm of data science and generative AI.
+
+
+
+
+User
+Write me a data science portfolio on the project of identifying use cases and industries from customer reviews using Bertopic, transformers, sentence transformers, pytorch ext
+ChatGPT
+Data Science Portfolio: Identifying Use Cases and Industries from Customer Reviews using Bertopic, Transformers, Sentence Transformers, and PyTorch
+
+Project Overview:
+In this data science project, I tackled the challenging task of automatically identifying use cases and industries from customer reviews. The goal was to extract valuable insights from unstructured text data and provide meaningful categorization to help businesses understand customer sentiments and preferences effectively.
+
+Tools and Technologies Used:
+
+Bertopic: A powerful topic modeling library based on BERT embeddings, used for identifying themes and topics in the customer reviews.
+Transformers: A popular library for Natural Language Processing (NLP) tasks, employed for fine-tuning BERT-based models to improve topic classification accuracy.
+Sentence Transformers: A library for computing dense vector representations of sentences, utilized for transforming text data into numeric embeddings for machine learning models.
+PyTorch: An open-source deep learning framework, used for training and fine-tuning NLP models.
+Project Steps:
+
+Data Collection and Preprocessing:
+
+Gathered a diverse dataset of customer reviews from various sources, such as online reviews, social media platforms, and survey responses.
+Performed data preprocessing, including text cleaning, tokenization, and removal of stop words and special characters.
+Bertopic Topic Modeling:
+
+Applied Bertopic to extract latent topics and themes from the customer reviews.
+Visualized the discovered topics using interactive visualizations to gain a better understanding of the underlying patterns.
+Fine-tuning BERT for Topic Classification:
+
+Utilized the Transformers library to fine-tune a pre-trained BERT model on the annotated data, where each review was labeled with its corresponding use case and industry.
+Employed transfer learning to leverage the knowledge learned by BERT on a massive corpus to improve topic classification performance.
+Sentence Embeddings with Sentence Transformers:
+
+Utilized Sentence Transformers to transform the preprocessed text data into fixed-length dense vector representations.
+Explored various sentence embedding models to find the most suitable one for the classification task.
+Model Evaluation and Validation:
+
+Split the dataset into training and testing sets to evaluate the model's performance on unseen data.
+Utilized metrics such as accuracy, precision, recall, and F1-score to assess the model's effectiveness.
+Deployment and API Integration:
+
+Deployed the trained model as an API service to make real-time predictions on new customer reviews.
+Integrated the API into a user-friendly web application to allow businesses to input their customer reviews and receive immediate insights on use cases and industries.
+Results and Impact:
+
+The Bertopic-based topic modeling provided valuable insights into the main themes and topics present in the customer reviews, enabling businesses to prioritize areas of improvement.
+The fine-tuned BERT model achieved high accuracy in classifying use cases and industries from customer reviews, enhancing the understanding of customer preferences and pain points.
+The deployed API and web application facilitated seamless access to the model's predictions, empowering businesses to make data-driven decisions based on customer feedback.
+Conclusion:
+This data science project demonstrated the powerful capabilities of leveraging state-of-the-art NLP techniques, such as Bertopic, Transformers, Sentence Transformers, and PyTorch, to extract meaningful insights from unstructured text data. The use of deep learning models and topic modeling algorithms enabled businesses to gain a deeper understanding of their customers, identify emerging trends, and make informed decisions to drive success and growth.
+    """))
+    print(response)
