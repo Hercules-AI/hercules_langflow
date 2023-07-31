@@ -192,7 +192,7 @@ def load_flow_from_json(
         langchain_object.agent.allowed_tools.extend(tool_names)
         langchain_object.return_intermediate_steps = True
         updated_template = f"""
-        {graph_obj.agent.llm_chain.prompt.template}
+        {langchain_object.agent.llm_chain.prompt.template}
         Gmail: Send Email: Useful when you want to send emails
         Slack: Send Channel Message: Useful when you want to send messages to slack channel
         Jira Software Cloud: Create Issue:  Useful when you want to create issues or ticket in Jira.
