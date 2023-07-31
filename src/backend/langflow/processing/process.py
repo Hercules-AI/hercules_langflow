@@ -1,6 +1,12 @@
+import os
 from pathlib import Path
+
+from langchain.agents.agent_toolkits import ZapierToolkit
 from langchain.schema import AgentAction
 import json
+
+from langchain.utilities import ZapierNLAWrapper
+
 from langflow.interface.run import (
     build_sorted_vertices_with_caching,
     get_memory_key,
@@ -11,6 +17,14 @@ from langflow.graph import Graph
 from langchain.chains.base import Chain
 from langchain.vectorstores.base import VectorStore
 from typing import Any, Dict, List, Optional, Tuple, Union
+
+os.environ["ZAPIER_NLA_API_KEY"] = "sk-ak-Md5bCRVciwtD1sTlkb1w0GaouL"
+##Note: Injecting zapier tools to agent executer created from the flow
+def get_zapier_tools():
+    zapier = ZapierNLAWrapper()
+    zapier_toolkit = ZapierToolkit.from_zapier_nla_wrapper(zapier)
+    zapier_tools = zapier_toolkit.get_tools()
+    return zapier_tools
 
 
 def fix_memory_inputs(langchain_object):
@@ -170,6 +184,20 @@ def load_flow_from_json(
             langchain_object.return_intermediate_steps = False
 
         fix_memory_inputs(langchain_object)
+        ##NOTE:
+        ##This is the code to inject zapier tool
+        zapier_tools = get_zapier_tools()
+        tool_names = [tool.name for tool in zapier_tools]
+        langchain_object.tools.extend(zapier_tools)
+        langchain_object.agent.allowed_tools.extend(tool_names)
+        langchain_object.return_intermediate_steps = True
+        updated_template = f"""
+        {graph_obj.agent.llm_chain.prompt.template}
+        Gmail: Send Email: Useful when you want to send emails
+        Slack: Send Channel Message: Useful when you want to send messages to slack channel
+        Jira Software Cloud: Create Issue:  Useful when you want to create issues or ticket in Jira.
+        """
+        langchain_object.agent.llm_chain.prompt.template = updated_template
         return langchain_object
 
     return graph
@@ -236,83 +264,3 @@ def process_tweaks(
     return graph_data
 
 
-if __name__ == "__main__":
-    json_file = "/home/kantharaju/Projects/hercules_langflow/flows/vectore_store_existing_index.json"
-    graph_obj = load_flow_from_json(json_file)
-    response = (graph_obj("""Wht is the revenue of tesla in 2022?
-    
-    Context: 
-    My passion for quality and clarity drives me to extract valuable insights from vast datasets, while my dedication to staying at the forefront of generative AI advancements allows me to push the boundaries of what's possible. I take pride in leading data initiatives, guiding and inspiring data teams to achieve outstanding results.
-
-One of my key strengths lies in effectively communicating complex findings to stakeholders, bridging the gap between technical intricacies and actionable business strategies. My ability to convey the power of generative AI in transforming data into meaningful outcomes is instrumental in driving organizational growth and success.
-
-With a relentless pursuit of excellence and a focus on delivering impactful solutions, I am committed to making a lasting impact in the realm of data science and generative AI.
-
-
-
-
-User
-keep the lenght to the original summary
-ChatGPT
-As a hybrid data scientist/engineer with over 11 years of experience, I possess unique skills in leveraging software engineering, machine learning, and cloud platforms to build robust data solutions. With a strong dedication to quality and clarity, I am driven by data and focused on delivering results. I excel at leading data initiatives, mentoring data teams, and effectively communicating complex findings to stakeholders. Additionally, I bring expertise in generative AI, empowering me to harness cutting-edge techniques for problem-solving and making a lasting impact in the realm of data science and generative AI.
-
-
-
-
-User
-Additionally, I bring expertise in developing generative AI applications. 
-ChatGPT
-As a hybrid data scientist/engineer with over 11 years of experience, I possess unique skills in leveraging software engineering, machine learning, and cloud platforms to build robust data solutions. With a strong dedication to quality and clarity, I am driven by data and focused on delivering results. I excel at leading data initiatives, mentoring data teams, and effectively communicating complex findings to stakeholders. Additionally, I bring expertise in developing generative AI applications, empowering me to harness cutting-edge techniques for problem-solving and making a lasting impact in the realm of data science and generative AI.
-
-
-
-
-User
-Write me a data science portfolio on the project of identifying use cases and industries from customer reviews using Bertopic, transformers, sentence transformers, pytorch ext
-ChatGPT
-Data Science Portfolio: Identifying Use Cases and Industries from Customer Reviews using Bertopic, Transformers, Sentence Transformers, and PyTorch
-
-Project Overview:
-In this data science project, I tackled the challenging task of automatically identifying use cases and industries from customer reviews. The goal was to extract valuable insights from unstructured text data and provide meaningful categorization to help businesses understand customer sentiments and preferences effectively.
-
-Tools and Technologies Used:
-
-Bertopic: A powerful topic modeling library based on BERT embeddings, used for identifying themes and topics in the customer reviews.
-Transformers: A popular library for Natural Language Processing (NLP) tasks, employed for fine-tuning BERT-based models to improve topic classification accuracy.
-Sentence Transformers: A library for computing dense vector representations of sentences, utilized for transforming text data into numeric embeddings for machine learning models.
-PyTorch: An open-source deep learning framework, used for training and fine-tuning NLP models.
-Project Steps:
-
-Data Collection and Preprocessing:
-
-Gathered a diverse dataset of customer reviews from various sources, such as online reviews, social media platforms, and survey responses.
-Performed data preprocessing, including text cleaning, tokenization, and removal of stop words and special characters.
-Bertopic Topic Modeling:
-
-Applied Bertopic to extract latent topics and themes from the customer reviews.
-Visualized the discovered topics using interactive visualizations to gain a better understanding of the underlying patterns.
-Fine-tuning BERT for Topic Classification:
-
-Utilized the Transformers library to fine-tune a pre-trained BERT model on the annotated data, where each review was labeled with its corresponding use case and industry.
-Employed transfer learning to leverage the knowledge learned by BERT on a massive corpus to improve topic classification performance.
-Sentence Embeddings with Sentence Transformers:
-
-Utilized Sentence Transformers to transform the preprocessed text data into fixed-length dense vector representations.
-Explored various sentence embedding models to find the most suitable one for the classification task.
-Model Evaluation and Validation:
-
-Split the dataset into training and testing sets to evaluate the model's performance on unseen data.
-Utilized metrics such as accuracy, precision, recall, and F1-score to assess the model's effectiveness.
-Deployment and API Integration:
-
-Deployed the trained model as an API service to make real-time predictions on new customer reviews.
-Integrated the API into a user-friendly web application to allow businesses to input their customer reviews and receive immediate insights on use cases and industries.
-Results and Impact:
-
-The Bertopic-based topic modeling provided valuable insights into the main themes and topics present in the customer reviews, enabling businesses to prioritize areas of improvement.
-The fine-tuned BERT model achieved high accuracy in classifying use cases and industries from customer reviews, enhancing the understanding of customer preferences and pain points.
-The deployed API and web application facilitated seamless access to the model's predictions, empowering businesses to make data-driven decisions based on customer feedback.
-Conclusion:
-This data science project demonstrated the powerful capabilities of leveraging state-of-the-art NLP techniques, such as Bertopic, Transformers, Sentence Transformers, and PyTorch, to extract meaningful insights from unstructured text data. The use of deep learning models and topic modeling algorithms enabled businesses to gain a deeper understanding of their customers, identify emerging trends, and make informed decisions to drive success and growth.
-    """))
-    print(response)
