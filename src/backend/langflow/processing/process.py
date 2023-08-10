@@ -21,8 +21,19 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 os.environ["ZAPIER_NLA_API_KEY"] = "sk-ak-Md5bCRVciwtD1sTlkb1w0GaouL"
 
+FORMAT_INSTRUCTIONS = """Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do. In case you find Human Feedback, prioritize and incorporate it in your thinking.
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question"""
 
 # Note: Injecting zapier tools to agent executer created from the flow
+
 
 def get_zapier_tools():
     zapier = ZapierNLAWrapper()
@@ -195,7 +206,7 @@ def load_flow_from_json(
         langchain_object.tools = tools
         langchain_object.agent.allowed_tools = tools
         langchain_object.return_intermediate_steps = True
-        prompt = ZeroShotAgent.create_prompt(tools=tools)
+        prompt = ZeroShotAgent.create_prompt(tools=tools, format_instructions=FORMAT_INSTRUCTIONS)
 
         langchain_object.agent.llm_chain.prompt = prompt
         return langchain_object
