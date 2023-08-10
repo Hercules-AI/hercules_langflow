@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
+import json
 
 from langchain.agents.agent_toolkits import ZapierToolkit
 from langchain.schema import AgentAction
-import json
+from langchain.agents.mrkl.base import ZeroShotAgent
 
 from langchain.utilities import ZapierNLAWrapper
 
@@ -19,7 +20,10 @@ from langchain.vectorstores.base import VectorStore
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 os.environ["ZAPIER_NLA_API_KEY"] = "sk-ak-Md5bCRVciwtD1sTlkb1w0GaouL"
-##Note: Injecting zapier tools to agent executer created from the flow
+
+
+# Note: Injecting zapier tools to agent executer created from the flow
+
 def get_zapier_tools():
     zapier = ZapierNLAWrapper()
     zapier_toolkit = ZapierToolkit.from_zapier_nla_wrapper(zapier)
@@ -184,22 +188,16 @@ def load_flow_from_json(
             langchain_object.return_intermediate_steps = False
 
         fix_memory_inputs(langchain_object)
-        ##NOTE:
-        ##This is the code to inject zapier tool
+        # NOTE: This is the code to inject zapier tool
         zapier_tools = get_zapier_tools()
-        tool_names = [tool.name for tool in zapier_tools]
-        langchain_object.tools.extend(zapier_tools)
-        langchain_object.agent.allowed_tools.extend(tool_names)
+        inbuilt_tools = langchain_object.tools
+        tools = zapier_tools + inbuilt_tools
+        langchain_object.agent.allowed_tools = tools
         langchain_object.return_intermediate_steps = True
-        updated_template = f"""
-        {langchain_object.agent.llm_chain.prompt.template}
-        Gmail: Send Email: Useful when you want to send emails
-        Slack: Send Channel Message: Useful when you want to send messages to slack channel
-        Jira Software Cloud: Create Issue:  Useful when you want to create issues or ticket in Jira.
-        """
-        langchain_object.agent.llm_chain.prompt.template = updated_template
-        return langchain_object
+        prompt = ZeroShotAgent.create_prompt(tools=tools)
 
+        langchain_object.agent.llm_chain.prompt = prompt
+        return langchain_object
     return graph
 
 
@@ -263,4 +261,14 @@ def process_tweaks(
 
     return graph_data
 
+
+"""
+We use this code for local debugging
+if __name__ == "__main__":
+    file_name = "/home/kantharaju/Projects/hercules/hercules_langflow/flows/vectore_store_existing_index.json"
+    graph_object = load_flow_from_json(file_name)
+    question = "How much did cisco spend on sales and marketing in 2022? Please send the result to kantharajucn@outlook.com"
+    response = graph_object(question)
+    print(response)
+"""
 
