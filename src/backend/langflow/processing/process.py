@@ -192,6 +192,7 @@ def load_flow_from_json(
         zapier_tools = get_zapier_tools()
         inbuilt_tools = langchain_object.tools
         tools = zapier_tools + inbuilt_tools
+        langchain_object.tools = tools
         langchain_object.agent.allowed_tools = tools
         langchain_object.return_intermediate_steps = True
         prompt = ZeroShotAgent.create_prompt(tools=tools)
@@ -263,7 +264,7 @@ def process_tweaks(
 
 
 """
-We use this code for local debugging
+#We use this code for local debugging
 if __name__ == "__main__":
     file_name = "/home/kantharaju/Projects/hercules/hercules_langflow/flows/vectore_store_existing_index.json"
     graph_object = load_flow_from_json(file_name)
@@ -271,4 +272,3 @@ if __name__ == "__main__":
     response = graph_object(question)
     print(response)
 """
-
